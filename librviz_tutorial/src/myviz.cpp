@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QVBoxLayout>
+#include <QDebug>
 
 #include <memory>
 
@@ -41,9 +42,10 @@
 #include "rviz_common/render_panel.hpp"
 #include "rviz_common/ros_integration/ros_node_abstraction.hpp"
 #include "rviz_common/visualization_manager.hpp"
+#include "rviz_common/view_manager.hpp"
 #include "rviz_common/window_manager_interface.hpp"
 #include "rviz_rendering/render_window.hpp"
-
+#include <OgreCamera.h>
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz(
@@ -66,14 +68,13 @@ MyViz::MyViz(
   controls_layout->addWidget(thickness_slider, 0, 1);
   controls_layout->addWidget(cell_size_label, 1, 0);
   controls_layout->addWidget(cell_size_slider, 1, 1);
-
   // Add visualization.
   QVBoxLayout * main_layout = new QVBoxLayout;
   QWidget * central_widget = new QWidget();
   main_layout->addLayout(controls_layout);
   main_layout->setSpacing(0);
   main_layout->setMargin(0);
-
+  
   // Next we initialize the main RViz classes.
   //
   // The VisualizationManager is the container for Display objects,
@@ -89,19 +90,23 @@ MyViz::MyViz(
   manager_ = std::make_shared<rviz_common::VisualizationManager>(
     render_panel_.get(), rviz_ros_node_, wm, clock);
   render_panel_->initialize(manager_.get());
+  render_panel_->setMouseTracking(true);
   app_->processEvents();
   manager_->initialize();
   manager_->startUpdate();
-
   // Set the top-level layout for this MyViz widget.
   central_widget->setLayout(main_layout);
   setCentralWidget(central_widget);
   main_layout->addWidget(render_panel_.get());
-
+  // QString class_id = "rviz_default_plugins/Orbit";
+  // manager_->getViewManager()->setCurrentViewControllerType(class_id);
+  std::cout << manager_->getViewManager()->getCurrent()->getClassId().toStdString() << std::endl;
+  // rviz_common::ViewController * controller_ = manager_->getViewManager()->getCurrent();
+  // controller_->getCamera()->moveRelative(Ogre::Vector3(1,1,1));
+  // controller_->getCamera()->rotate;
   // Make signal/slot connections.
   connect(thickness_slider, SIGNAL(valueChanged(int)), this, SLOT(setThickness(int)));
   connect(cell_size_slider, SIGNAL(valueChanged(int)), this, SLOT(setCellSize(int)));
-
   // Create a Grid display.
   grid_ = manager_->createDisplay("rviz_default_plugins/Grid", "adjustable grid", true);
   if (grid_ == NULL) {
@@ -133,6 +138,30 @@ void MyViz::setCellSize(int cell_size_percent)
   if (grid_ != NULL) {
     grid_->subProp("Cell Size")->setValue(cell_size_percent / 10.0f);
   }
+}
+
+void MyViz::mouseMoveEvent(QMouseEvent *event){
+    qDebug() << "mouseMove"<<event->pos();
+}
+
+void MyViz::mouseDoubleClickEvent(QMouseEvent *event){
+    qDebug() << "mouseDclick"<<event->pos();
+}
+
+void MyViz::mousePressEvent(QMouseEvent *event){
+    qDebug() << "mousePress"<<event->pos();
+}
+
+void MyViz::mouseReleaseEvent(QMouseEvent *event){
+    qDebug() << "mouseRelease"<<event->pos();
+}
+
+void MyViz::enterEvent(QEvent *event){
+    qDebug() << "Enter";
+}
+
+void MyViz::leaveEvent(QEvent *event){
+    qDebug() << "leave";
 }
 
 void MyViz::closeEvent(QCloseEvent * event)

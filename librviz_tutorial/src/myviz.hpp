@@ -33,13 +33,13 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QWidget>
+#include <QMouseEvent>
 
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rviz_common/display.hpp"
 #include "rviz_common/ros_integration/ros_node_abstraction.hpp"
-
 namespace rviz_common
 {
 class Display;
@@ -70,6 +70,22 @@ private:
   std::shared_ptr<rviz_common::RenderPanel> render_panel_;
   rviz_common::Display * grid_;
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
+  
+protected:
+  void mouseMoveEvent(QMouseEvent *event);
+  // void mouseMoveEvent(QMouseEvent *ev) override {
+  //   QTransform t;
+  //   t.scale(1, -1);
+  //   t.translate(0, -height()+1);
+  //   QPoint pos = ev->pos() * t;
+  //   std::cout << "x:" << pos.x() << ", y:" << pos.y() << std::endl;
+  // }
+  void mouseDoubleClickEvent(QMouseEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void enterEvent(QEvent *event);
+  void leaveEvent(QEvent *event);
+
 };
 // END_TUTORIAL
 #endif  // MYVIZ_HPP_
